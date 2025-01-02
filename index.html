@@ -47,6 +47,18 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script>
@@ -64,13 +76,26 @@
                     header: true,
                     skipEmptyLines: true,
                     complete: function(results) {
+                        const table = document.getElementById("dataTable");
+                        const tbody = document.createElement("tbody");
                         results.data.forEach(row => {
                             const name = row['姓名'];
                             const seat = row['座位'];
                             if (name && seat) {
                                 seatData[name.trim()] = seat.trim();
+
+                                // Add data to the table
+                                const tr = document.createElement("tr");
+                                const nameTd = document.createElement("td");
+                                const seatTd = document.createElement("td");
+                                nameTd.textContent = name.trim();
+                                seatTd.textContent = seat.trim();
+                                tr.appendChild(nameTd);
+                                tr.appendChild(seatTd);
+                                tbody.appendChild(tr);
                             }
                         });
+                        table.appendChild(tbody);
                         dataLoaded = true;
                         loadingIndicator.textContent = "座位數據加載完成！";
                         console.log('Seat data loaded:', seatData);
@@ -106,13 +131,23 @@
     </script>
 </head>
 <body>
-    <h1>111尾牙座位查詢系統</h1>
+    <h1>尾牙座位查詢系統</h1>
     <div class="input-container">
         <input type="text" id="nameInput" placeholder="輸入您的姓名">
         <button onclick="searchSeat()">查詢座位</button>
     </div>
     <div id="loading" class="loading"></div>
     <div id="result" class="result"></div>
+
+    <h2>座位數據表</h2>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>座位</th>
+            </tr>
+        </thead>
+    </table>
 
     <div class="image-container">
         <h2>完整座位圖</h2>
