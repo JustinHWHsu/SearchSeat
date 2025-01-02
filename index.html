@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>座位查找器</h1>
+        <h1>111座位查找器</h1>
         <input type="text" id="nameInput" placeholder="輸入姓名">
         <button onclick="findSeat()">查找座位</button>
         <p id="result"></p>
@@ -26,7 +26,7 @@
 
         // Parse the CSV content
         function parseCSV(text) {
-            const rows = text.split('\n').map(row => row.split(','));
+            const rows = text.split('\n').filter(row => row.trim()).map(row => row.split(','));
             return rows;
         }
 
