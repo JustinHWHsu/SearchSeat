@@ -48,8 +48,7 @@
 
         async function fetchSeatData() {
             try {
-                //const response = await fetch('https://docs.google.com/spreadsheets/d/<spreadsheet_id>/gviz/tq?tqx=out:json');
-                const response = await fetch('https://docs.google.com/spreadsheets/d/1b4r0ROTH1umC-LvD-S8RSZnoAdSfeS7V/gviz/tq?tqx=out:json');
+                const response = await fetch('https://raw.githubusercontent.com/JustinHWHsu/SearchSeat/main/%E6%A1%8C%E8%99%9F.csv');
                 const text = await response.text();
                 const json = JSON.parse(text.substring(47).slice(0, -2));
 
