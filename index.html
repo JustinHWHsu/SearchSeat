@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>座位查找器</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script> <!-- Add this line -->
 </head>
 <body>
     <div class="container">
-        <h1>1111座位查找器</h1>
+        <h1>座位查找器</h1>
         <input type="text" id="nameInput" placeholder="輸入姓名">
         <button onclick="findSeat()">查找座位</button>
         <div id="csvTable"></div>
@@ -47,16 +48,21 @@
             document.getElementById('csvTable').appendChild(table);
         }
 
-        // Find the seat based on the input name
+        // Find the seat based on the input name using fuzzy search
         function findSeat() {
             const name = document.getElementById('nameInput').value.trim();
             let result = '找不到對應的座位';
 
-            for (const row of csvData) {
-                if (row[0] && row[0].trim() === name) {
-                    result = `姓名: ${row[0]}, 座位: ${row[1]}`;
-                    break;
-                }
+            const fuse = new Fuse(csvData, {
+                keys: ['0'], // Search in the first column (姓名)
+                threshold: 0.3 // Adjust the threshold for fuzzy matching
+            });
+
+            const searchResult = fuse.search(name);
+
+            if (searchResult.length > 0) {
+                const bestMatch = searchResult[0].item;
+                result = `姓名: ${bestMatch[0]}, 座位: ${bestMatch[1]}`;
             }
 
             document.getElementById('result').innerText = result;
