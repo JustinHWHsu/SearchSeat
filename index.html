@@ -3,70 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>座位查找器</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script> <!-- Add this line -->
+    <title>尾牙座位查詢</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        .input-container {
+            margin: 20px;
+        }
+        input {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #007b00;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>座位查找器</h1>
-        <input type="text" id="nameInput" placeholder="輸入姓名">
-        <button onclick="findSeat()">查找座位</button>
-        <div id="csvTable"></div>
-        <p id="result"></p>
+    <h1>尾牙座位查詢系統</h1>
+    <div class="input-container">
+        <input type="text" id="nameInput" placeholder="輸入您的姓名">
+        <button onclick="searchSeat()">查詢座位</button>
     </div>
+    <div id="result" class="result"></div>
+
+    <h2>座位數據表</h2>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>座位</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
     <script>
-        let csvData = [];
+        const csvUrl = 'https://raw.githubusercontent.com/JustinHWHsu/SearchSeat/main/seats.csv'; // Replace with your actual URL
 
-        // Fetch the CSV file
-        fetch('seat.csv', { headers: { 'Content-Type': 'text/csv; charset=UTF-8' } })
-            .then(response => response.text())
-            .then(text => {
-                csvData = parseCSV(text);
-                displayCSV(csvData);
-            })
-            .catch(error => console.error('Error fetching the CSV file:', error));
+        function loadCsvData() {
+            fetch(csvUrl)
+                .then(response => response.text())
+                .then(csvText => {
+                    const rows = csvText.split('\\n').slice(1); // Skip header row
+                    const tableBody = document.querySelector("#dataTable tbody");
 
-        // Parse the CSV content
-        function parseCSV(text) {
-            const rows = text.split('\n').filter(row => row.trim()).map(row => row.split(','));
-            return rows;
+                    rows.forEach(row => {
+                        const [name, seat] = row.split(',').map(cell => cell.trim());
+                        if (name && seat) {
+                            // Add data to table
+                            const tr = document.createElement("tr");
+                            const nameTd = document.createElement("td");
+                            const seatTd = document.createElement("td");
+                            nameTd.textContent = name;
+                            seatTd.textContent = seat;
+                            tr.appendChild(nameTd);
+                            tr.appendChild(seatTd);
+                            tableBody.appendChild(tr);
+                        }
+                    });
+                })
+                .catch(error => console.error("Error loading CSV data:", error));
         }
 
-        // Display the CSV content in a table
-        function displayCSV(data) {
-            const table = document.createElement('table');
-            data.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                row.forEach(cell => {
-                    const td = document.createElement(index === 0 ? 'th' : 'td');
-                    td.textContent = cell;
-                    tr.appendChild(td);
-                });
-                table.appendChild(tr);
-            });
-            document.getElementById('csvTable').appendChild(table);
-        }
+        function searchSeat() {
+            const name = document.getElementById("nameInput").value.trim();
+            const rows = document.querySelectorAll("#dataTable tbody tr");
+            const resultContainer = document.getElementById("result");
 
-        // Find the seat based on the input name using fuzzy search
-        function findSeat() {
-            const name = document.getElementById('nameInput').value.trim();
-            let result = '找不到對應的座位';
-
-            const fuse = new Fuse(csvData, {
-                keys: ['0'], // Search in the first column (姓名)
-                threshold: 0.3 // Adjust the threshold for fuzzy matching
+            let found = false;
+            rows.forEach(row => {
+                const nameCell = row.cells[0].textContent.trim();
+                const seatCell = row.cells[1].textContent.trim();
+                if (name === nameCell) {
+                    resultContainer.textContent = `${name} 的座位是 ${seatCell}`;
+                    found = true;
+                }
             });
 
-            const searchResult = fuse.search(name);
-
-            if (searchResult.length > 0) {
-                const bestMatch = searchResult[0].item;
-                result = `姓名: ${bestMatch[0]}, 座位: ${bestMatch[1]}`;
+            if (!found) {
+                resultContainer.textContent = `找不到 ${name} 的座位資訊，請確認名字是否正確。`;
             }
-
-            document.getElementById('result').innerText = result;
         }
+
+        document.addEventListener("DOMContentLoaded", loadCsvData);
     </script>
 </body>
 </html>
