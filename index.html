@@ -63,7 +63,7 @@
 
                         results.data.forEach(row => {
                             const name = row['姓名'];
-                            const seat = row['座位'];
+                            const seat = row['桌次安排'];
 
                             if (name && seat) {
                                 seatData[name.trim()] = seat.trim();
