@@ -3,121 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>12尾牙座位查詢</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            background-color: #f9f9f9;
-        }
-        h1 {
-            color: #333;
-        }
-        .input-container {
-            margin: 20px;
-        }
-        input {
-            padding: 10px;
-            width: 300px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #007b00;
-        }
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 80%;
-        }
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script>
-        let seatData = {};
-
-        async function fetchSeatData() {
-            try {
-                const response = await fetch('https://raw.githubusercontent.com/JustinHWHsu/SearchSeat/main/seat.csv');
-                const csvText = await response.text();
-                Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        const table = document.getElementById("dataTable");
-                        const tbody = document.createElement("tbody");
-
-                        results.data.forEach(row => {
-                            const name = row['姓名'];
-                            const seat = row['桌次安排'];
-
-                            if (name && seat) {
-                                seatData[name.trim()] = seat.trim();
-
-                                // Add data to the table
-                                const tr = document.createElement("tr");
-                                const nameTd = document.createElement("td");
-                                const seatTd = document.createElement("td");
-                                nameTd.textContent = name.trim();
-                                seatTd.textContent = seat.trim();
-                                tr.appendChild(nameTd);
-                                tr.appendChild(seatTd);
-                                tbody.appendChild(tr);
-                            }
-                        });
-                        table.appendChild(tbody);
-                        console.log('Seat data loaded:', seatData);
-                    }
-                });
-            } catch (error) {
-                console.error('Error loading seat data:', error);
-            }
-        }
-
-        function searchSeat() {
-            const name = document.getElementById("nameInput").value.trim();
-            const resultContainer = document.getElementById("result");
-
-            if (seatData[name]) {
-                resultContainer.textContent = `${name} 的座位是 ${seatData[name]}`;
-            } else {
-                resultContainer.textContent = `找不到 ${name} 的座位資訊，請確認名字是否正確。`;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', fetchSeatData);
-    </script>
+    <title>座位查找器</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>尾牙座位查詢系統</h1>
-    <div class="input-container">
-        <input type="text" id="nameInput" placeholder="輸入您的姓名">
-        <button onclick="searchSeat()">查詢座位</button>
+    <div class="container">
+        <h1>座位查找器</h1>
+        <input type="text" id="nameInput" placeholder="輸入姓名">
+        <button onclick="findSeat()">查找座位</button>
+        <p id="result"></p>
     </div>
-    <div id="result" class="result"></div>
+    <script>
+        let csvData = [];
 
-    <h2>座位數據表</h2>
-    <table id="dataTable">
-        <thead>
-            <tr>
-                <th>姓名</th>
-                <th>座位</th>
-            </tr>
-        </thead>
-    </table>
+        // Fetch the CSV file
+        fetch('seat.csv')
+            .then(response => response.text())
+            .then(text => {
+                csvData = parseCSV(text);
+            })
+            .catch(error => console.error('Error fetching the CSV file:', error));
+
+        // Parse the CSV content
+        function parseCSV(text) {
+            const rows = text.split('\n').map(row => row.split(','));
+            return rows;
+        }
+
+        // Find the seat based on the input name
+        function findSeat() {
+            const name = document.getElementById('nameInput').value.trim();
+            let result = '找不到對應的座位';
+
+            for (const row of csvData) {
+                if (row[0] && row[0].trim() === name) {
+                    result = `姓名: ${row[0]}, 座位: ${row[1]}`;
+                    break;
+                }
+            }
+
+            document.getElementById('result').innerText = result;
+        }
+    </script>
 </body>
 </html>
