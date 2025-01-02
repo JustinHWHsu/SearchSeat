@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>尾牙座位查詢</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        .input-container {
+            margin: 20px;
+        }
+        input {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #007b00;
+        }
+        .image-container {
+            margin-top: 40px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+    <script>
+        const seatData = {
+            "王小明": "A1",
+            "李大華": "B2",
+            "張三": "C3",
+            "李四": "D4"
+        };
+
+        function searchSeat() {
+            const name = document.getElementById("nameInput").value.trim();
+            const resultContainer = document.getElementById("result");
+
+            if (seatData[name]) {
+                resultContainer.textContent = `${name} 的座位是 ${seatData[name]}`;
+            } else {
+                resultContainer.textContent = `找不到 ${name} 的座位資訊，請確認名字是否正確。`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>尾牙座位查詢系統</h1>
+    <div class="input-container">
+        <input type="text" id="nameInput" placeholder="輸入您的姓名">
+        <button onclick="searchSeat()">查詢座位</button>
+    </div>
+    <div id="result" class="result"></div>
+
+    <div class="image-container">
+        <h2>完整座位圖</h2>
+        <a href="https://drive.google.com/file/d/17pW7HN4KAJ-mQdR5exMmiUZqLOS-SXSt/view?usp=drive_link" target="_blank">
+            <img src="https://drive.google.com/uc?id=17pW7HN4KAJ-mQdR5exMmiUZqLOS-SXSt" alt="座位圖">
+        </a>
+    </div>
+</body>
+</html>
