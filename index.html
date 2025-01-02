@@ -46,6 +46,61 @@
             text-align: left;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        let seatData = {};
+
+        async function fetchSeatData() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/JustinHWHsu/SearchSeat/main/seat.csv');
+                const csvText = await response.text();
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        const table = document.getElementById("dataTable");
+                        const tbody = document.createElement("tbody");
+
+                        results.data.forEach(row => {
+                            const name = row['姓名'];
+                            const seat = row['座位'];
+
+                            if (name && seat) {
+                                seatData[name.trim()] = seat.trim();
+
+                                // Add data to the table
+                                const tr = document.createElement("tr");
+                                const nameTd = document.createElement("td");
+                                const seatTd = document.createElement("td");
+                                nameTd.textContent = name.trim();
+                                seatTd.textContent = seat.trim();
+                                tr.appendChild(nameTd);
+                                tr.appendChild(seatTd);
+                                tbody.appendChild(tr);
+                            }
+                        });
+                        table.appendChild(tbody);
+                        console.log('Seat data loaded:', seatData);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading seat data:', error);
+            }
+        }
+
+        function searchSeat() {
+            const name = document.getElementById("nameInput").value.trim();
+            const resultContainer = document.getElementById("result");
+
+            if (seatData[name]) {
+                resultContainer.textContent = `${name} 的座位是 ${seatData[name]}`;
+            } else {
+                resultContainer.textContent = `找不到 ${name} 的座位資訊，請確認名字是否正確。`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchSeatData);
+    </script>
 </head>
 <body>
     <h1>尾牙座位查詢系統</h1>
@@ -63,59 +118,6 @@
                 <th>座位</th>
             </tr>
         </thead>
-        <tbody>
-        </tbody>
     </table>
-
-    <script>
-        const csvUrl = 'https://raw.githubusercontent.com/JustinHWHsu/SearchSeat/main/seats.csv'; // Replace with your actual URL
-
-        function loadCsvData() {
-            fetch(csvUrl)
-                .then(response => response.text())
-                .then(csvText => {
-                    const rows = csvText.split('\\n').slice(1); // Skip header row
-                    const tableBody = document.querySelector("#dataTable tbody");
-
-                    rows.forEach(row => {
-                        const [name, seat] = row.split(',').map(cell => cell.trim());
-                        if (name && seat) {
-                            // Add data to table
-                            const tr = document.createElement("tr");
-                            const nameTd = document.createElement("td");
-                            const seatTd = document.createElement("td");
-                            nameTd.textContent = name;
-                            seatTd.textContent = seat;
-                            tr.appendChild(nameTd);
-                            tr.appendChild(seatTd);
-                            tableBody.appendChild(tr);
-                        }
-                    });
-                })
-                .catch(error => console.error("Error loading CSV data:", error));
-        }
-
-        function searchSeat() {
-            const name = document.getElementById("nameInput").value.trim();
-            const rows = document.querySelectorAll("#dataTable tbody tr");
-            const resultContainer = document.getElementById("result");
-
-            let found = false;
-            rows.forEach(row => {
-                const nameCell = row.cells[0].textContent.trim();
-                const seatCell = row.cells[1].textContent.trim();
-                if (name === nameCell) {
-                    resultContainer.textContent = `${name} 的座位是 ${seatCell}`;
-                    found = true;
-                }
-            });
-
-            if (!found) {
-                resultContainer.textContent = `找不到 ${name} 的座位資訊，請確認名字是否正確。`;
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", loadCsvData);
-    </script>
 </body>
 </html>
