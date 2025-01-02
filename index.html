@@ -11,7 +11,7 @@
     <div class="container">
         <h1>座位查找器</h1>
         <input type="text" id="nameInput" placeholder="輸入姓名">
-        <button onclick="findSeat()">查找座位</button>
+        <button onclick="findSeat()">a查找座位</button>
         <div id="csvTable"></div>
         <p id="result"></p>
     </div>
@@ -30,8 +30,17 @@
         // Parse the CSV content
         function parseCSV(text) {
             const rows = text.split('\n').filter(row => row.trim()).map(row => row.split(','));
-            return rows;
+            const header = rows[0]; // 第一行是字段名稱
+            const data = rows.slice(1).map(row => {
+                const obj = {};
+                header.forEach((key, index) => {
+                    obj[key] = row[index];
+                });
+                return obj;
+            });
+            return data;
         }
+
 
         // Display the CSV content in a table
         function displayCSV(data) {
@@ -52,21 +61,22 @@
         function findSeat() {
             const name = document.getElementById('nameInput').value.trim();
             let result = '找不到對應的座位';
-
+        
             const fuse = new Fuse(csvData, {
-                keys: ['0'], // Search in the first column (姓名)
-                threshold: 0.3 // Adjust the threshold for fuzzy matching
+                keys: ['姓名'], // 指定搜索對象的字段
+                threshold: 0.3 // 調整模糊搜索靈敏度
             });
-
+        
             const searchResult = fuse.search(name);
-
+        
             if (searchResult.length > 0) {
                 const bestMatch = searchResult[0].item;
-                result = `姓名: ${bestMatch[0]}, 座位: ${bestMatch[1]}`;
+                result = `姓名: ${bestMatch.姓名}, 座位: ${bestMatch.座位}`;
             }
-
+        
             document.getElementById('result').innerText = result;
         }
+
     </script>
 </body>
 </html>
